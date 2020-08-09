@@ -1,5 +1,5 @@
-import { prospect } from './main'
+import prospect from './main';
 
-export async function cli(args) {
-    await prospect(...args.slice(2));
+export default async function cli(args) {
+  await prospect(...args.slice(2));
 }

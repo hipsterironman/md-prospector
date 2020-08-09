@@ -1,32 +1,26 @@
 import fs from 'fs';
 
-export async function prospect(oldFile, newFile) {
-    fs.readFile(oldFile, 'utf8', function (err, data) {
-        if (err) {
-            return console.log(err);
-        }
+export default async function prospect(lang, oldFile, newFile) {
+  fs.readFile(oldFile, 'utf8', (readErr, data) => {
+    if (readErr) {
+      throw new Error(readErr);
+    }
 
-        const codeStart = '```js';
-        const codeEnd = '```';
-        const firstIndex = data.indexOf(codeStart) + codeStart.length + 1;
-        const secondIndex = data.indexOf(codeEnd, firstIndex + 1);
+    if (!data.includes(`\`\`\`${lang}`)) {
+      console.log('Prospector couldn\'t find the code he was looking for :(');
+      return;
+    }
 
-        const output = data.substring(firstIndex, secondIndex);
+    const output = data.split(`\`\`\`${lang}`)
+      .reduce((acc, curr) => (curr.includes('```') ? [...acc, curr.split('```')[0].trim()] : acc), [])
+      .join('\n');
 
-        fs.writeFile(newFile, output, function (err) {
-            if (err) {
-                return console.log(err);
-            }
-    
-            console.log('Struck gold!');
-        });
+    fs.writeFile(newFile, output, (writeErr) => {
+      if (writeErr) {
+        throw new Error(writeErr);
+      }
+
+      console.log('Prospector struck gold!');
     });
-
-    // fs.writeFile(newFile, output, function (err) {
-    //     if (err) {
-    //         return console.log(err);
-    //     }
-
-    //     console.log('Struck gold!');
-    // });
+  });
 }
